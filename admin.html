@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - RapatIn</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="light-mode">
+    <div id="app">
+        <!-- Sidebar Navigation (Desktop) -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Admin Panel</span>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li class="nav-item" onclick="window.location.href='index.html'">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Kembali ke App</span>
+                </li>
+                <li class="nav-item active" data-page="users">
+                    <i class="fas fa-users"></i>
+                    <span>Manajemen User</span>
+                </li>
+                <li class="nav-item" data-page="meetings">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Semua Rapat</span>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-header">
+                <h2>Admin Dashboard</h2>
+                <div class="header-actions">
+                    <div class="user-profile-sm">
+                        <img src="" alt="Avatar" id="admin-avatar">
+                        <span id="admin-username">Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <div id="admin-container" class="page-container">
+                <!-- Data will be injected here -->
+            </div>
+        </main>
+    </div>
+    
+    <div id="toast-container" class="toast-container"></div>
+    
+    <!-- Modals -->
+    <div id="admin-modal-overlay" class="modal-overlay"></div>
+    
+    <!-- User Edit Modal -->
+    <div id="admin-user-modal" class="modal">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h3>Edit User</h3>
+                <button class="close-modal" onclick="closeAdminModal('admin-user-modal')">&times;</button>
+            </header>
+            <form id="admin-user-form">
+                <input type="hidden" id="edit-u-id">
+                <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="edit-u-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="edit-u-email" required>
+                </div>
+                <div class="form-group">
+                    <label>Role</label>
+                    <select id="edit-u-role" style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-family: inherit;">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Posisi / Jabatan</label>
+                    <input type="text" id="edit-u-position">
+                </div>
+                <div class="form-group">
+                    <label>Bio Singkat</label>
+                    <textarea id="edit-u-bio" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAdminModal('admin-user-modal')">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Meeting Edit Modal -->
+    <div id="admin-meeting-modal" class="modal">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h3>Edit Rapat</h3>
+                <button class="close-modal" onclick="closeAdminModal('admin-meeting-modal')">&times;</button>
+            </header>
+            <form id="admin-meeting-form">
+                <input type="hidden" id="edit-m-id">
+                <div class="form-group">
+                    <label>Judul Rapat</label>
+                    <input type="text" id="edit-m-title" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tanggal</label>
+                        <input type="date" id="edit-m-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Waktu</label>
+                        <input type="time" id="edit-m-time" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Lokasi</label>
+                    <input type="text" id="edit-m-location" required>
+                </div>
+                <div class="form-group">
+                    <label>Deskripsi / Notulensi</label>
+                    <textarea id="edit-m-description" rows="4"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeAdminModal('admin-meeting-modal')">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

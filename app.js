@@ -122,17 +122,28 @@ function updateHeader() {
         const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(state.currentUser.name)}&background=800000&color=fff`;
         document.getElementById('header-avatar').src = avatarUrl;
         document.getElementById('header-username').textContent = state.currentUser.name.split(' ')[0];
+        
+        // Show/hide admin only elements
+        document.querySelectorAll('.admin-only').forEach(el => {
+            if (state.currentUser.role === 'admin') {
+                el.style.display = 'flex';
+            } else {
+                el.style.display = 'none';
+            }
+        });
     }
 }
 
-function renderPage() {
+function renderPage(skipAnimation = false) {
     const container = document.getElementById('page-container');
     container.innerHTML = '';
     
-    // Add fade-in animation
-    container.classList.remove('fade-in');
-    void container.offsetWidth; // Trigger reflow
-    container.classList.add('fade-in');
+    // Add fade-in animation unless explicitly skipped (e.g. for searching)
+    if (!skipAnimation) {
+        container.classList.remove('fade-in');
+        void container.offsetWidth; // Trigger reflow
+        container.classList.add('fade-in');
+    }
 
     const filteredMeetings = state.meetings.filter(m => 
         m.title.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
@@ -169,7 +180,7 @@ function renderHomePage(container, filteredMeetings) {
     
     let html = `
         <section class="home-section">
-            <div class="hero-card fade-in">
+            <div class="hero-card">
                 <span class="hero-tag">Highlight Rapat</span>
                 <h1>${nearest ? nearest.title : 'Belum Ada Rapat'}</h1>
                 <div class="hero-info">
@@ -212,7 +223,7 @@ function renderProfilePage(container) {
     const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(state.currentUser.name)}&background=800000&color=fff&size=200`;
     
     let html = `
-        <div class="profile-container fade-in">
+        <div class="profile-container">
             <div class="profile-header">
                 <img src="${avatarUrl}" class="profile-avatar-large" alt="Profile">
                 <h2>${state.currentUser.name}</h2>
@@ -263,7 +274,7 @@ function renderProfilePage(container) {
 
 function renderAboutPage(container) {
     let html = `
-        <div class="about-container fade-in" style="max-width: 800px; margin: 0 auto; text-align: center;">
+        <div class="about-container" style="max-width: 800px; margin: 0 auto; text-align: center;">
             <div class="auth-logo" style="margin-bottom: 2rem;">
                 <i class="fas fa-handshake"></i>
                 <h1>RapatIn</h1>
@@ -296,7 +307,7 @@ function renderAboutPage(container) {
 
 function createMeetingCard(meeting) {
     return `
-        <div class="meeting-card fade-in" onclick="editMeeting('${meeting.id}')">
+        <div class="meeting-card" onclick="editMeeting('${meeting.id}')">
             <div class="card-header">
                 <span class="card-date">${formatDate(meeting.date)} &bull; ${meeting.time}</span>
                 <div class="card-actions">
@@ -335,6 +346,10 @@ function setupEventListeners() {
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => {
             const page = item.getAttribute('data-page');
+            if (page === 'admin') {
+                window.location.href = 'admin.html';
+                return;
+            }
             if (page) setPage(page);
         });
     });
@@ -366,7 +381,7 @@ function setupEventListeners() {
     // Search
     document.getElementById('global-search').addEventListener('input', (e) => {
         state.searchQuery = e.target.value;
-        renderPage();
+        renderPage(true); // skip animation
     });
 
     // Logout

@@ -415,6 +415,8 @@ body {
     background: var(--surface);
     width: 90%;
     max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     z-index: 1001;
