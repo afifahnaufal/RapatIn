@@ -7,7 +7,18 @@ const state = {
 };
 
 // API Configuration
-const API_BASE = window.location.origin.startsWith('file://') ? 'http://localhost:8080/api' : '/api';
+const API_BASE = (window.location.origin.startsWith('file://') || !window.location.origin.includes('8080')) 
+    ? 'http://localhost:8080/api' 
+    : '/api';
+
+// Save current user session to localStorage
+function saveUser() {
+    if (state.currentUser) {
+        localStorage.setItem('rapatin_user', JSON.stringify(state.currentUser));
+    } else {
+        localStorage.removeItem('rapatin_user');
+    }
+}
 
 // Custom Toast Notification System
 function showToast(message, type = 'info') {
@@ -205,7 +216,8 @@ function renderProfilePage(container) {
             <div class="profile-header">
                 <img src="${avatarUrl}" class="profile-avatar-large" alt="Profile">
                 <h2>${state.currentUser.name}</h2>
-                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">${state.currentUser.email}</p>
+                <p style="color: var(--text-muted); margin-bottom: 0.5rem;">${state.currentUser.position || 'Member'}</p>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-style: italic;">"${state.currentUser.bio || 'Belum ada bio.'}"</p>
                 
                 <div class="profile-stats">
                     <div class="stat-item">
@@ -215,22 +227,38 @@ function renderProfilePage(container) {
                 </div>
             </div>
 
-            <div class="profile-content" style="background: white; padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div class="profile-content" style="background: white; padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 2rem;">
                 <h3>Pengaturan Akun</h3>
-                <div style="margin-top: 1.5rem;">
+                <form id="profile-form" style="margin-top: 1.5rem;">
                     <div class="form-group">
-                        <label>Nama Lengkap</label>
-                        <input type="text" value="${state.currentUser.name}" readonly>
+                        <label for="profile-name">Nama Lengkap</label>
+                        <input type="text" id="profile-name" value="${state.currentUser.name || ''}" required placeholder="Nama Lengkap">
                     </div>
                     <div class="form-group">
-                        <label>Alamat Email</label>
-                        <input type="email" value="${state.currentUser.email}" readonly>
+                        <label for="profile-position">Jabatan / Posisi</label>
+                        <input type="text" id="profile-position" value="${state.currentUser.position || ''}" placeholder="Contoh: Project Manager">
                     </div>
-                </div>
+                    <div class="form-group">
+                        <label for="profile-bio">Bio Singkat</label>
+                        <textarea id="profile-bio" rows="3" placeholder="Tulis bio singkat Anda...">${state.currentUser.bio || ''}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="profile-email">Alamat Email</label>
+                        <input type="email" id="profile-email" value="${state.currentUser.email || ''}" required placeholder="nama@email.com">
+                    </div>
+                    <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+                        <button type="submit" class="btn btn-primary" id="save-profile-btn">
+                            <i class="fas fa-save"></i> Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     `;
     container.innerHTML = html;
+    
+    // Attach event listener immediately to the dynamic form
+    document.getElementById('profile-form').addEventListener('submit', handleProfileUpdate);
 }
 
 function renderAboutPage(container) {
@@ -462,6 +490,33 @@ async function handleRegister(e) {
         showToast('Pendaftaran berhasil! Silakan masuk.', 'success');
         document.getElementById('register-form-container').classList.add('hidden');
         document.getElementById('login-form-container').classList.remove('hidden');
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+async function handleProfileUpdate(e) {
+    e.preventDefault();
+    const updatedData = {
+        name: document.getElementById('profile-name').value,
+        position: document.getElementById('profile-position').value,
+        bio: document.getElementById('profile-bio').value,
+        email: document.getElementById('profile-email').value,
+        profileImagePath: state.currentUser.profileImagePath || ''
+    };
+
+    try {
+        const res = await apiFetch(`/user/${state.currentUser.id}`, {
+            method: 'PUT',
+            body: updatedData
+        });
+        
+        // Update local state and localStorage
+        state.currentUser = res.data;
+        saveUser();
+        
+        showToast('Profil berhasil diperbarui', 'success');
+        updateUI();
     } catch (err) {
         showToast(err.message, 'error');
     }
