@@ -483,6 +483,13 @@ async function handleLogin(e) {
         });
         state.currentUser = res.data;
         saveUser();
+        
+        // Redirect to admin dashboard if admin
+        if (state.currentUser.role === 'admin') {
+            window.location.href = 'admin.html';
+            return;
+        }
+        
         document.getElementById('auth-container').classList.add('hidden');
         showToast('Selamat datang kembali!', 'success');
         await loadMeetings();
@@ -498,10 +505,22 @@ async function handleRegister(e) {
     const password = document.getElementById('reg-password').value;
 
     try {
-        await apiFetch('/register', {
+        const res = await apiFetch('/register', {
             method: 'POST',
             body: { name, email, password }
         });
+        
+        // Check if registered user is admin
+        if (res.data && res.data.role === 'admin') {
+            state.currentUser = res.data;
+            saveUser();
+            showToast('Selamat datang Admin!', 'success');
+            // Redirect to admin dashboard
+            window.location.href = 'admin.html';
+            return;
+        }
+        
+        // Regular user registration
         showToast('Pendaftaran berhasil! Silakan masuk.', 'success');
         document.getElementById('register-form-container').classList.add('hidden');
         document.getElementById('login-form-container').classList.remove('hidden');
